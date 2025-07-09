@@ -1,0 +1,12 @@
+backend/venv/
+backend/__pycache__/
+*.pyc
+*.pyo
+__pycache__/
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+.env
+.vscode/
+
+backend/*.mp4

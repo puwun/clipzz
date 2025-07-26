@@ -10,7 +10,7 @@ import { db } from "~/server/db";
    
 
 
-export async function processVideo(uploadedFileId: string) {
+export async function processVideo(uploadedFileId: string, numClips: number) {
 
     const uploadedVideo = await db.uploadedFile.findUniqueOrThrow({
         where: { id: uploadedFileId },
@@ -32,6 +32,7 @@ export async function processVideo(uploadedFileId: string) {
         name: "process-video-events",
         data: {
             uploadedFileId: uploadedVideo.id,
+            numClips,
             userId: uploadedVideo.userId,
         },
     });
@@ -41,7 +42,8 @@ export async function processVideo(uploadedFileId: string) {
     await db.uploadedFile.update({
         where: { id: uploadedVideo.id },
         data: {
-            uploaded: true,
+          numClips,
+          uploaded: true,
         },
     });
 

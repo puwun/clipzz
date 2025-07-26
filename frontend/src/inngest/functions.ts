@@ -15,7 +15,7 @@ export const processVideo = inngest.createFunction(
   { event: "process-video-events" },
   async ({ event, step }) => {
 
-    const { uploadedFileId } = event.data as {uploadedFileId:  string, userId: string};
+    const { uploadedFileId, numClips } = event.data as {uploadedFileId:  string, userId: string, numClips: number};
 
     const { userId, s3Key, credits } = await step.run("check-credits", async () => {
       const uploadedFile = await db.uploadedFile.findUniqueOrThrow(
@@ -54,7 +54,7 @@ export const processVideo = inngest.createFunction(
           method: "POST",
           body: JSON.stringify({
             s3_key: s3Key,
-            // num_clips: 
+            num_clips: numClips
           }),
           headers: {
             "Content-Type": "application/json",

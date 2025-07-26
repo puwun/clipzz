@@ -29,6 +29,7 @@ import { Badge } from "./ui/badge";
 import { useRouter } from "next/navigation";
 import { ClipDisplay } from "./clip-display";
 import { format } from "date-fns";
+import { Input } from "./ui/input";
 
 
 export function DashboardClient({
@@ -47,6 +48,7 @@ export function DashboardClient({
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [numClips, setNumClips] = useState(2);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
@@ -84,7 +86,7 @@ export function DashboardClient({
       if (!uploadResponse.ok)
         throw new Error(`Upload filed with status: ${uploadResponse.status}`);
 
-      await processVideo(uploadedFileId);
+      await processVideo(uploadedFileId, numClips);
 
       setFiles([]);
 
@@ -176,6 +178,25 @@ export function DashboardClient({
                     </div>
                   )}
                 </div>
+
+                {files.length > 0 && (
+                  <div className="flex items-center space-x-4">
+                    <label htmlFor="numClips" className="text-sm font-medium">
+                      Number of Clips:
+                    </label>
+                    <Input
+                      id="numClips"
+                      type="number"
+                      min={1}
+                      value={numClips}
+                      onChange={(e) => setNumClips(Number(e.target.value))}
+                      disabled={uploading}
+                      className="w-20"
+                    />
+                  </div>
+                )}
+
+
                 <Button
                   disabled={files.length === 0 || uploading}
                   onClick={handleUpload}

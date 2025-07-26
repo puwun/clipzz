@@ -28,7 +28,9 @@ export async function createCheckoutSession(priceId: PriceId) {
     select: { stripeCustomerId: true },
   });
 
-//   console.log("Creating checkout session for user:", user);
+  console.log("Price ID: ", priceId);
+
+  console.log("Creating checkout session for user:", user);
   if (!user.stripeCustomerId) {
     throw new Error("User has no stripeCustomerId");
   }
@@ -40,9 +42,31 @@ export async function createCheckoutSession(priceId: PriceId) {
     success_url: `${env.BASE_URL}/dashboard?success=true`,
   });
 
+  console.log("Checkout session created:", session);
+
+  console.log("```````````````````````````````````")
+
   if (!session.url) {
     throw new Error("Failed to create session URL");
   }
 
   redirect(session.url);
 }
+
+
+/*
+working stripe URL:
+
+url -X POST http://localhost:3000/api/webhooks/stripe   -H "Content-Type: application/json"   -d '{"type": "checkout.session.completed", "data": {"object": {"id": "cs_test_a1ybuPhzeY5JUMVvzqMFUAXASO88e3xhAfZEBJhsRMRipJZXicnigtWqZ4", "customer": "cus_Ske9m3Q0lemYQx"}}}'
+
+  but only through CLI
+
+
+--option to select number of clips to Generate
+--after clicking on one of the entries in queue status, it should redirect to my clips for those particular generated clips
+--sort and segregate my clips based on some paramter (date ig)
+
+  */
+
+
+

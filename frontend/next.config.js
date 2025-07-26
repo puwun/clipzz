@@ -6,6 +6,12 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
+  api: {
+    bodyParser: false,
+  },
+  experimental: {
+    allowedDevOrigins: ["https://checkout.stripe.com"], // Fix the syntax here
+  },
   images: {
     remotePatterns: [
       {

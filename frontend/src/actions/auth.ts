@@ -5,6 +5,7 @@ import { signupSchema, type SignupFormValues } from "~/schemas/auth";
 import { db } from "~/server/db";
 import Stripe from "stripe";
 import { env } from "~/env";
+import axios from "axios";
 
 type SignupResult = {
   success: boolean;
@@ -36,19 +37,48 @@ export async function signUp(data: SignupFormValues): Promise<SignupResult> {
     }
 
 
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+    // Create Razorpay contact
+    const razorpayResponse = await axios.post(
+      "https://api.razorpay.com/v1/contacts",
+      {
+        name: email.split("@")[0], // Use email prefix as name (or customize as needed)
+        email: email.toLowerCase(),
+        type: "customer",
+      },
+      {
+        auth: {
+        username: env.RAZORPAY_KEY_ID,
+        password: env.RAZORPAY_KEY_SECRET,
+        },
+      }
+    );
+    // console.log("----------------------------")
+    // console.log("Razorpay response:", razorpayResponse);
+    // console.log("----------------------------")
 
-    const stripeCustomer = await stripe.customers.create({
-      email: email.toLowerCase(),
-    });
+
+    // if (!razorpayResponse.ok) {
+    //   const errorData = await razorpayResponse.json();
+    //   console.error("Razorpay customer creation failed:", errorData);
+    //   return {
+    //     success: false,
+    //     error: "Failed to create Razorpay customer",
+    //   };
+    // }
+    // const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+
+    // const stripeCustomer = await stripe.customers.create({
+    //   email: email.toLowerCase(),
+    // });
 
 
 
     // Only hash and set password if provided
     console.log("reached here before stripe custID")
+    
     const userData = {
       email,
-      stripeCustomerId: stripeCustomer.id,
+      razorpayContactId: razorpayResponse.data.id,
     };
 
     if (password) {

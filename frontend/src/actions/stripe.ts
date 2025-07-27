@@ -28,23 +28,16 @@ export async function createCheckoutSession(priceId: PriceId) {
     select: { stripeCustomerId: true },
   });
 
-  console.log("Price ID: ", priceId);
-
-  console.log("Creating checkout session for user:", user);
   if (!user.stripeCustomerId) {
     throw new Error("User has no stripeCustomerId");
   }
 
   const session = await stripe.checkout.sessions.create({
     line_items: [{ price: PRICE_IDS[priceId], quantity: 1 }],
-    customer: user.stripeCustomerId,
+    // customer: user.stripeCustomerId,
     mode: "payment",
     success_url: `${env.BASE_URL}/dashboard?success=true`,
   });
-
-  console.log("Checkout session created:", session);
-
-  console.log("```````````````````````````````````")
 
   if (!session.url) {
     throw new Error("Failed to create session URL");

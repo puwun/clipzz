@@ -5,7 +5,8 @@ import { verifyPassword } from "~/lib/auth";
 import { db } from "~/server/db";
 import Google from "next-auth/providers/google";
 import { env } from "~/env";
-import Stripe from "stripe";
+// import Stripe from "stripe";
+import axios from "axios";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -22,10 +23,6 @@ declare module "next-auth" {
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 
@@ -34,23 +31,39 @@ CustomPrismaAdapter.createUser = async (data) => {
   console.log("inside custom adapter")
   const { password, ...userData } = data  ; // Exclude password if not provided
 
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+    // const stripe = new Stripe(env.STRIPE_SECRET_KEY);
   
-    const stripeCustomer = await stripe.customers.create({
-      email: data.email.toLowerCase(),
+    // const stripeCustomer = await stripe.customers.create({
+    //   email: data.email.toLowerCase(),
+    // });
+
+    const razorpayResponse = await axios.post("https://api.razorpay.com/v1/customers", {
+      email: userData.email.toLowerCase(),
+      name: userData.name || userData.email.split("@")[0],
+      type: "customer",
+      
+    }, {
+      auth: {
+        username: env.RAZORPAY_KEY_ID,
+        password: env.RAZORPAY_KEY_SECRET,
+      },
     });
-  
 
-    console.log("---------------------------before creating google user ", password, stripeCustomer.id)
+  // return db.user.create({
+  //   data: {
+  //     ...userData,
+  //     stripeCustomerId: stripeCustomer.id,
+  //   },
+  // });
 
 
 
-  return db.user.create({
-    data: {
-      ...userData,
-      stripeCustomerId: stripeCustomer.id,
-    },
-  });
+    return db.user.create({
+        data: {
+          ...userData,
+          razorpayContactId: razorpayResponse.data.id, // Store Razorpay contact ID
+        },
+      });
 };
 
 
@@ -83,10 +96,6 @@ export const authConfig = {
           where: { email },
         });
 
-
-        // console.log("User found:", user);
-        // console.log("Email:", email);
-        // console.log("Password:", password);
 
         if(!user){
           return null;

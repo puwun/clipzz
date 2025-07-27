@@ -31,6 +31,12 @@ export const env = createEnv({
     STRIPE_LARGE_CREDIT_PACK: z.string(),
     BASE_URL: z.string().url(),
     STRIPE_WEBHOOK_SECRET: z.string(),
+    RAZORPAY_KEY_ID: z.string(),
+    RAZORPAY_KEY_SECRET: z.string(),
+    RAZORPAY_SMALL_CREDIT_PACK: z.string(),
+    RAZORPAY_MEDIUM_CREDIT_PACK: z.string(),
+    RAZORPAY_LARGE_CREDIT_PACK: z.string(),
+    RAZORPAY_WEBHOOK_SECRET: z.string(),
     },
 
   /**
@@ -69,7 +75,12 @@ export const env = createEnv({
     STRIPE_LARGE_CREDIT_PACK: process.env.STRIPE_LARGE_CREDIT_PACK,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
       BASE_URL: process.env.BASE_URL,
-
+    RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+    RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+    RAZORPAY_SMALL_CREDIT_PACK: process.env.RAZORPAY_SMALL_CREDIT_PACK,
+    RAZORPAY_MEDIUM_CREDIT_PACK: process.env.RAZORPAY_MEDIUM_CREDIT_PACK,
+    RAZORPAY_LARGE_CREDIT_PACK: process.env.RAZORPAY_LARGE_CREDIT_PACK,
+    RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

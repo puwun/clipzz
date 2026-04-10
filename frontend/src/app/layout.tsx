@@ -27,7 +27,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${roboto.variable}`}>
+     <html lang="en" className={`${inter.variable} ${roboto.variable}`}>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&family=Architects+Daughter&display=swap"
@@ -39,6 +39,6 @@ export default function RootLayout({
           {children}
         </ThemeClientProvider>
       </body>
-    </html>
+     </html>
   );
 }

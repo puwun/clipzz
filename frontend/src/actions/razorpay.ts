@@ -1,17 +1,10 @@
 "use server";
 
-import axios, { AxiosError } from "axios";
 import { env } from "~/env";
 import { auth } from "~/server/auth";
-import { db } from "~/server/db";
 
 export type PriceId = "small" | "medium" | "large";
 
-const ITEM_IDS: Record<PriceId, string> = {
-  small: env.RAZORPAY_SMALL_CREDIT_PACK,
-  medium: env.RAZORPAY_MEDIUM_CREDIT_PACK,
-  large: env.RAZORPAY_LARGE_CREDIT_PACK,
-};
 
 export  async function getCurrentUser() {
   const serverSession = await auth();

@@ -1,4 +1,3 @@
-import { buffer } from "micro";
 import crypto from "crypto";
 import { db } from "~/server/db";
 import { env } from "~/env";
@@ -27,7 +26,7 @@ export async function POST(req: Request) {
   console.log("Received Razorpay webhook event:", event);
   if (event.event === "order.paid") {
     const order = event.payload.order.entity;
-    const { priceId, userId } = order.notes || {};
+    const { priceId, userId } = order.notes ?? {};
 
     console.log("Processing order.paid for order:", order);
 

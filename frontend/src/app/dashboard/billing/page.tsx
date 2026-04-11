@@ -121,7 +121,7 @@ function PricingCard({ plan }: { plan: PricingPlan }) {
 
       console.log("Razorpay options:", options);
 
-      const rzp = new window.Razorpay(options);
+      const rzp = new (window as any).Razorpay(options);
       rzp.on("payment.failed", function (response: any) {
         console.error("Payment failed:", response.error);
         alert(`Payment failed: ${response.error.description}`);

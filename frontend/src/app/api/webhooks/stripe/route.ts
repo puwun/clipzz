@@ -6,23 +6,23 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
-});
-
+const stripe = env.STRIPE_SECRET_KEY
+  ? new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2025-06-30.basil" })
+  : null;
 
 const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
 
 
 export async function POST(req: Request) {
+  if (!stripe || !webhookSecret) {
+    return new NextResponse("Stripe is not configured", { status: 503 });
+  }
+
   try {
     const body = await req.text();
-    console.log("req.headers:", req.headers);
-    const signature = req.headers.get("stripe-signature") || "";
-
+    const signature = req.headers.get("stripe-signature") ?? "";
 
     let event: Stripe.Event;
-
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
@@ -32,26 +32,14 @@ export async function POST(req: Request) {
         status: 400,
       });
     }
-    // try {
-    //   event = JSON.parse(body) as Stripe.Event;
-    //   console.log("Parsed event:", event);
-    // } catch (error) {
-    //   console.error("Failed to parse event:", error);
-    //   return new NextResponse("Invalid payload", { status: 400 });
-    // }
-
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      const customerId = session.customer as string;
-
-
 
       const retreivedSession = await stripe.checkout.sessions.retrieve(
         session.id,
         { expand: ["line_items"] },
       );
-
 
       const lineItems = retreivedSession.line_items;
 
@@ -68,16 +56,20 @@ export async function POST(req: Request) {
           } else if (priceId === env.STRIPE_LARGE_CREDIT_PACK) {
             creditsToAdd = 500;
           }
-          
-          
-          await db.user.update({
-            where: { stripeCustomerId: customerId },
-            data: {
-              credits: {
-                increment: creditsToAdd,
+
+          // Note: Stripe checkout sessions would need a userId in metadata
+          // to identify the user. This is placeholder for future Stripe support.
+          const customerEmail = session.customer_details?.email;
+          if (customerEmail && creditsToAdd > 0) {
+            await db.user.update({
+              where: { email: customerEmail },
+              data: {
+                credits: {
+                  increment: creditsToAdd,
+                },
               },
-            },
-          });
+            });
+          }
         }
       }
     }

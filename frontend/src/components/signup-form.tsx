@@ -20,12 +20,15 @@ import { signUp } from "~/actions/auth";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
+import { FiEye, FiEyeOff } from "react-icons/fi"; 
+
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -104,21 +107,29 @@ export function SignupForm({
                 )}
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    {...register("password")}
+                    className="pr-10" // add padding for the icon
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <FiEye className="w-5 h-5" /> :  <FiEyeOff className="w-5 h-5" />}
+                  </button>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  {...register("password")}
-                />
                 {errors.password && (
-                  <p className="text-sm text-red-500">
-                    {errors.password.message}
-                  </p>
+                  <p className="text-sm text-red-500">{errors.password.message}</p>
                 )}
               </div>
+
 
               {error && (
                 <p className="rounded-md bg-red-50 p-3 text-sm text-red-500">

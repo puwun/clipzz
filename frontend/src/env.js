@@ -13,7 +13,7 @@ export const env = createEnv({
         : z.string().optional(),
     // AUTH_DISCORD_ID: z.string(),
     // AUTH_DISCORD_SECRET: z.string(),
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -25,17 +25,14 @@ export const env = createEnv({
     S3_BUCKET_NAME: z.string(),
     PROCESS_VIDEO_ENDPOINT: z.string(),
     PROCESS_VIDEO_ENDPOINT_AUTH: z.string(),
-    STRIPE_SECRET_KEY: z.string(),
-    STRIPE_SMALL_CREDIT_PACK: z.string(),
-    STRIPE_MEDIUM_CREDIT_PACK: z.string(),
-    STRIPE_LARGE_CREDIT_PACK: z.string(),
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_SMALL_CREDIT_PACK: z.string().optional(),
+    STRIPE_MEDIUM_CREDIT_PACK: z.string().optional(),
+    STRIPE_LARGE_CREDIT_PACK: z.string().optional(),
     BASE_URL: z.string().url(),
-    STRIPE_WEBHOOK_SECRET: z.string(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
     RAZORPAY_KEY_ID: z.string(),
     RAZORPAY_KEY_SECRET: z.string(),
-    RAZORPAY_SMALL_CREDIT_PACK: z.string(),
-    RAZORPAY_MEDIUM_CREDIT_PACK: z.string(),
-    RAZORPAY_LARGE_CREDIT_PACK: z.string(),
     RAZORPAY_WEBHOOK_SECRET: z.string(),
     },
 
@@ -46,7 +43,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
-    NEXT_PUBLIC_STRIPE_PUB_KEY: z.string(),
+    NEXT_PUBLIC_STRIPE_PUB_KEY: z.string().optional(),
 
   },
 
@@ -77,9 +74,6 @@ export const env = createEnv({
       BASE_URL: process.env.BASE_URL,
     RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
-    RAZORPAY_SMALL_CREDIT_PACK: process.env.RAZORPAY_SMALL_CREDIT_PACK,
-    RAZORPAY_MEDIUM_CREDIT_PACK: process.env.RAZORPAY_MEDIUM_CREDIT_PACK,
-    RAZORPAY_LARGE_CREDIT_PACK: process.env.RAZORPAY_LARGE_CREDIT_PACK,
     RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET,
   },
   /**

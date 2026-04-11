@@ -29,19 +29,11 @@ declare module "next-auth" {
 const CustomPrismaAdapter = PrismaAdapter(db);
 CustomPrismaAdapter.createUser = async (data) => {
   console.log("inside custom adapter")
-  const { password, ...userData } = data  ; // Exclude password if not provided
-
-    // const stripe = new Stripe(env.STRIPE_SECRET_KEY);
-  
-    // const stripeCustomer = await stripe.customers.create({
-    //   email: data.email.toLowerCase(),
-    // });
 
     const razorpayResponse = await axios.post("https://api.razorpay.com/v1/customers", {
-      email: userData.email.toLowerCase(),
-      name: userData.name || userData.email.split("@")[0],
+      email: data.email.toLowerCase(),
+      name: data.name || data.email.split("@")[0],
       type: "customer",
-      
     }, {
       auth: {
         username: env.RAZORPAY_KEY_ID,
@@ -49,19 +41,13 @@ CustomPrismaAdapter.createUser = async (data) => {
       },
     });
 
-  // return db.user.create({
-  //   data: {
-  //     ...userData,
-  //     stripeCustomerId: stripeCustomer.id,
-  //   },
-  // });
-
-
-
     return db.user.create({
         data: {
-          ...userData,
-          razorpayContactId: razorpayResponse.data.id, // Store Razorpay contact ID
+          email: data.email,
+          name: data.name,
+          image: data.image,
+          emailVerified: data.emailVerified,
+          razorpayContactId: razorpayResponse.data.id,
         },
       });
 };
@@ -97,7 +83,7 @@ export const authConfig = {
         });
 
 
-        if(!user){
+        if(!user || !user.password){
           return null;
         }
 

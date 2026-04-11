@@ -1,5 +1,4 @@
 import {hash, compare} from "bcryptjs";
-import { auth } from "~/server/auth";
 
 
 export async function hashPassword(password: string) {

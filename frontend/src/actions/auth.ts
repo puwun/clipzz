@@ -3,7 +3,6 @@
 import { hashPassword } from "~/lib/auth";
 import { signupSchema, type SignupFormValues } from "~/schemas/auth";
 import { db } from "~/server/db";
-import Stripe from "stripe";
 import { env } from "~/env";
 import axios from "axios";
 
@@ -76,7 +75,7 @@ export async function signUp(data: SignupFormValues): Promise<SignupResult> {
     // Only hash and set password if provided
     console.log("reached here before stripe custID")
     
-    const userData = {
+    const userData: { email: string; razorpayContactId: string; password?: string } = {
       email,
       razorpayContactId: razorpayResponse.data.id,
     };

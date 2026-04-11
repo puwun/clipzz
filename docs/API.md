@@ -428,11 +428,11 @@ razorpay.open();
 
 **Credit Packs:**
 
-| Pack ID | Credits | Price (INR) | Price (Paise) |
-|---------|---------|-------------|---------------|
-| `small` | 50 | ₹830 | 83000 |
-| `medium` | 150 | ₹2,075 | 207500 |
-| `large` | 500 | ₹5,810 | 581000 |
+| Pack ID | Credits | Price (INR) |
+|---------|---------|-------------|
+| `small` | 50 | ₹830 |
+| `medium` | 150 | ₹2,075 |
+| `large` | 500 | ₹5,810 |
 
 ---
 
@@ -528,9 +528,9 @@ X-Razorpay-Signature: signature_here
 ```
 
 **Credit Allocation:**
-- ₹830 (83000 paise) → 50 credits
-- ₹2,075 (207500 paise) → 150 credits
-- ₹5,810 (581000 paise) → 500 credits
+- ₹830 → 50 credits
+- ₹2,075 → 150 credits
+- ₹5,810 → 500 credits
 
 **Response:**
 ```json
@@ -645,84 +645,3 @@ const limiter = rateLimit({
 - 5 active jobs per user
 - 100 jobs per day per user
 
----
-
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4a1/512.gif" width="24"> Best Practices
-
-### 1. Always Validate Input
-
-```typescript
-// Frontend validation
-const schema = z.object({
-  numClips: z.number().min(1).max(10),
-});
-
-const validated = schema.parse({ numClips });
-```
-
-### 2. Handle Async Operations
-
-```typescript
-// Show loading state
-setLoading(true);
-try {
-  await processVideo(uploadId, numClips);
-  toast.success("Processing started!");
-} catch (error) {
-  toast.error("Failed to start processing");
-} finally {
-  setLoading(false);
-}
-```
-
-### 3. Implement Exponential Backoff
-
-```typescript
-async function retryWithBackoff(fn, maxRetries = 3) {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (i === maxRetries - 1) throw error;
-      await new Promise(r => setTimeout(r, 2 ** i * 1000));
-    }
-  }
-}
-```
-
-### 4. Cache Presigned URLs
-
-```typescript
-// Cache clip URLs for 30 minutes
-const cache = new Map();
-
-async function getCachedClipUrl(clipId) {
-  if (cache.has(clipId)) {
-    const { url, expiresAt } = cache.get(clipId);
-    if (Date.now() < expiresAt) return url;
-  }
-
-  const { url } = await getClipPlayUrl(clipId);
-  cache.set(clipId, {
-    url,
-    expiresAt: Date.now() + 30 * 60 * 1000,
-  });
-
-  return url;
-}
-```
-
----
-
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f517/512.gif" width="24"> Related Documentation
-
-- [Architecture Overview](ARCHITECTURE.md) - System design
-- [Database Schema](DATABASE.md) - Data models
-- [Configuration Guide](CONFIGURATION.md) - Environment setup
-- [Security Practices](SECURITY.md) - API security
-
----
-
-<div align="center">
-  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4d6/512.gif" width="20"> For questions or issues, see [GitHub Issues](https://github.com/yourusername/clipzz/issues)
-</div>

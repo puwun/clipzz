@@ -2,11 +2,6 @@ import crypto from "crypto";
 import { db } from "~/server/db";
 import { env } from "~/env";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 export async function POST(req: Request) {
   const rawBody = await req.text();

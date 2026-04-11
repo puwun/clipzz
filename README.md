@@ -122,16 +122,16 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 
 ## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4da/512.gif" width="24"> Documentation
 
-- **[Architecture](ARCHITECTURE.md)** - System design and data flow
-- **[Configuration](CONFIGURATION.md)** - Environment variables guide
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and data flow
+- **[Configuration](docs/CONFIGURATION.md)** - Environment variables guide
 - **[Frontend README](frontend/README.md)** - Frontend-specific docs
 - **[Backend README](backend/README.md)** - Backend processing pipeline
-- **[API Documentation](API.md)** - API endpoints and server actions
-- **[Database Schema](DATABASE.md)** - Database structure
-- **[User Guide](USER_GUIDE.md)** - How to use Clipzz
-- **[Development Guide](DEVELOPMENT.md)** - Contributing and dev workflow
-- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment
-- **[Security](SECURITY.md)** - Security practices
+- **[API Documentation](docs/API.md)** - API endpoints and server actions
+- **[Database Schema](docs/DATABASE.md)** - Database structure
+- **[User Guide](docs/USER_GUIDE.md)** - How to use Clipzz
+- **[Development Guide](docs/DEVELOPMENT.md)** - Contributing and dev workflow
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment
+- **[Security](docs/SECURITY.md)** - Security practices
 
 ## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4a1/512.gif" width="24"> How It Works
 

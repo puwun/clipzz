@@ -12,7 +12,7 @@ import { Button } from "~/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Clipzz — Turn Your Podcasts Into Viral Clips with AI",
+  title: "Clipzz",
   description:
     "Clipzz is an AI-powered platform that transforms long-form podcast videos into viral-ready vertical clips for TikTok, Instagram Reels, and YouTube Shorts. Automatic transcription, smart moment detection, and animated subtitles.",
 };

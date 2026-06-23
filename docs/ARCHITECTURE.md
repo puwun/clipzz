@@ -1,4 +1,4 @@
-# <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3d7/512.gif" width="32"> Clipzz Architecture
+# <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3db/512.gif" width="32"> Clipzz Architecture
 
 This document provides a comprehensive overview of Clipzz's system architecture, data flow, and component interactions.
 
@@ -7,40 +7,40 @@ This document provides a comprehensive overview of Clipzz's system architecture,
 Clipzz is a full-stack AI-powered SaaS application built as a monorepo with clear separation between frontend and backend concerns.
 
 ```
-┌─────────────┐
-│   Browser   │
-└──────┬──────┘
-       │
-       ↓
-┌──────────────────────────────────────┐
-│   Frontend (Next.js 15)              │
-│   - App Router Pages                 │
-│   - Server Actions                   │
-│   - NextAuth.js Authentication       │
-└──────────┬───────────────────────────┘
-           │
-           ↓
-     ┌─────────────┐
-     │   Inngest   │  Background Job Queue
-     └──────┬──────┘
-            │
-            ↓
-    ┌────────────────┐
-    │  Modal Backend │  Serverless GPU (L40S)
-    │  (FastAPI)     │
-    └────────┬───────┘
-             │
-    ┌────────┴────────┐
-    ↓                 ↓
-┌────────┐      ┌──────────┐
-│  S3    │      │ AI Models│
-│Storage │      │- WhisperX│
-└────────┘      │- Gemini  │
-                │- LR-ASD  │
-                └──────────┘
+        ┌─────────────┐
+        │   Browser   │
+        └──────┬──────┘
+               │
+               ↓
+┌───────────────────────────────────┐
+│     Frontend (Next.js 15)         │
+│   - App Router Pages              │
+│   - Server Actions                │
+│   - NextAuth.js Authentication    │
+└──────────────┬────────────────────┘
+               │
+               ↓
+         ┌─────────────┐
+         │   Inngest   │  Background Job Queue
+         └──────┬──────┘
+                │
+                ↓
+        ┌────────────────┐
+        │  Modal Backend │  Serverless GPU (L40S)
+        │  (FastAPI)     │
+        └────────┬───────┘
+                 │
+        ┌────────┴────────┐
+        ↓                 ↓
+  ┌─────────┐      ┌───────────┐
+  │   S3    │      │ AI Models │
+  │ Storage │      │- WhisperX │
+  └─────────┘      │- Gemini   │
+                   │- LR-ASD   │
+                   └───────────┘
 ```
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4a7/512.gif" width="24"> Data Flow
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f30a/512.gif" width="24"> Data Flow
 
 ### Complete Processing Pipeline
 
@@ -106,7 +106,7 @@ User → Dashboard → generateUploadUrl() → S3 Presigned URL → Direct Uploa
 - Client uploads directly to S3 (no server bottleneck)
 - Database record created with `status: "queued"`, `uploaded: false`
 
-#### 2. Processing Initiation <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/25b6/512.gif" width="16">
+#### 2. Processing Initiation <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif" width="16">
 ```
 Dashboard → processVideo() → Inngest Event → Background Job
 ```
@@ -180,7 +180,7 @@ Transcript → Gemini 2.5 Pro → Analyze → Return Clip Boundaries
   ]
   ```
 
-#### 6. Active Speaker Detection <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f441/512.gif" width="16">
+#### 6. Active Speaker Detection <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f440/512.gif" width="16">
 ```
 Video Segment → LR-ASD → Face Tracking → Speaker Scores
 ```
@@ -250,7 +250,7 @@ Processed Clip → Upload to S3 → Create DB Record → Presigned URL → User
 - Database `Clip` records created with S3 keys
 - User views clips via presigned URLs (3600s expiry)
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e6/512.gif" width="24"> Component Architecture
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2699/512.gif" width="24"> Component Architecture
 
 ### Frontend Components
 
@@ -364,7 +364,7 @@ model Clip {
 }
 ```
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.gif" width="24"> Technology Choices & Rationale
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4a1/512.gif" width="24"> Technology Choices & Rationale
 
 ### Why Next.js 15?
 - **App Router:** Modern React architecture with server components
@@ -409,7 +409,7 @@ model Clip {
 - **Migrations:** Version-controlled database changes
 - **Multi-Database:** Easy to switch from SQLite to PostgreSQL
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/26a0/512.gif" width="24"> Limitations & Considerations
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f6a8/512.gif" width="24"> Limitations & Considerations
 
 ### Current Limitations
 1. **SQLite in Production:** Not suitable for high concurrency (migrate to PostgreSQL)

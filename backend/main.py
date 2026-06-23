@@ -50,7 +50,19 @@ auth_scheme = HTTPBearer()
 
 
 def get_video_fps(video_path):
-    """Get the frame rate of a video file using ffprobe."""
+    """
+    Extract the frame rate (FPS) of a video file using ffprobe.
+
+    Args:
+        video_path (str): Path to the video file
+
+    Returns:
+        float: Frame rate in frames per second (e.g., 25.0, 29.97, 30.0)
+
+    Example:
+        >>> fps = get_video_fps("/path/to/video.mp4")
+        >>> print(fps)  # 25.0
+    """
     result = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate", "-of", "json", str(video_path)],
         capture_output=True, text=True
@@ -63,17 +75,70 @@ def get_video_fps(video_path):
 
 
 def create_vertical_video(tracks, scores, pyframes_path, pyavi_path, audio_path, output_path, framerate=25):
+    """
+    Convert horizontal video to vertical format (1080x1920) with active speaker tracking.
+
+    This function implements smart cropping that follows the active speaker or creates
+    a blurred letterbox background when no speaker is detected. Uses a 60-frame window
+    (30 before + 30 after) to smooth speaker scores and prevent jittery camera movement.
+
+    Algorithm:
+        1. Load face tracks and speaking scores from LR-ASD
+        2. For each frame:
+           - Calculate average speaking score over 60-frame window
+           - Identify face with highest average score (active speaker)
+           - CROP MODE: If speaker detected (score > 0), crop 1080px centered on face
+           - RESIZE MODE: Otherwise, resize with blurred background letterboxing
+        3. Merge processed video with original audio
+
+    Args:
+        tracks (list): Face track data from LR-ASD (pickle file)
+            Each track contains:
+                - track["track"]["frame"]: Frame indices where face appears
+                - track["proc_track"]["x"]: X coordinates of face center
+                - track["proc_track"]["y"]: Y coordinates of face center
+                - track["proc_track"]["s"]: Face bounding box size
+        scores (list): Per-frame speaking scores from LR-ASD (same length as tracks)
+        pyframes_path (str): Directory containing extracted frames (*.jpg)
+        pyavi_path (str): Directory to save output video
+        audio_path (str): Path to audio file to merge with video
+        output_path (str): Path to save final video with audio
+        framerate (int, optional): Target frame rate. Default: 25 FPS
+
+    Returns:
+        None: Saves processed video to output_path
+
+    Technical Details:
+        - Target resolution: 1080x1920 (9:16 aspect ratio for social media)
+        - Scoring window: 60 frames (~2.4s at 25fps) for stable tracking
+        - GPU acceleration: Uses ffmpegcv.VideoWriterNV for fast encoding
+        - Blur kernel: 121x121 Gaussian for background
+        - Final encoding: H.264 with CRF 23, AAC audio at 128k
+
+    Example:
+        >>> create_vertical_video(
+        ...     tracks=loaded_tracks,
+        ...     scores=loaded_scores,
+        ...     pyframes_path="/tmp/clip/pyframes",
+        ...     pyavi_path="/tmp/clip/pyavi",
+        ...     audio_path="/tmp/clip/audio.wav",
+        ...     output_path="/tmp/clip/output.mp4"
+        ... )
+    """
     target_width = 1080
     target_height = 1920
 
     flist = glob.glob(os.path.join(pyframes_path, "*.jpg"))
     flist.sort()
 
+    # Initialize faces list: one entry per frame, each containing list of detected faces
     faces = [[] for _ in range(len(flist))]
 
+    # Populate faces with track data and average scores over 60-frame window
     for tidx, track in enumerate(tracks):
         score_array = scores[tidx]
         for fidx, frame in enumerate(track["track"]["frame"].tolist()):
+            # Average score over 60-frame window (30 before, 30 after) for smooth tracking
             slice_start = max(fidx - 30, 0)
             slice_end = min(fidx + 30, len(score_array))
             score_slice = score_array[slice_start:slice_end]
@@ -113,11 +178,16 @@ def create_vertical_video(tracks, scores, pyframes_path, pyavi_path, audio_path,
             mode = "resize"
 
         if mode == "resize":
+            # RESIZE MODE: No clear speaker detected
+            # Strategy: Letterbox with blurred background for aesthetic appeal
+
+            # Step 1: Resize original video to fit width (1080px)
             scale = target_width / img.shape[1]
             resized_height = int(img.shape[0] * scale)
             resized_image = cv2.resize(
                 img, (target_width, resized_height), interpolation=cv2.INTER_AREA)
 
+            # Step 2: Create blurred background to fill vertical space
             scale_for_bg = max(
                 target_width / img.shape[1], target_height / img.shape[0])
             bg_width = int(img.shape[1] * scale_for_bg)
@@ -125,13 +195,15 @@ def create_vertical_video(tracks, scores, pyframes_path, pyavi_path, audio_path,
 
             blurred_background = cv2.resize(img, (bg_width, bg_heigth))
             blurred_background = cv2.GaussianBlur(
-                blurred_background, (121, 121), 0)
+                blurred_background, (121, 121), 0)  # Heavy blur (121x121 kernel)
 
+            # Step 3: Crop background to target dimensions
             crop_x = (bg_width - target_width) // 2
             crop_y = (bg_heigth - target_height) // 2
             blurred_background = blurred_background[crop_y:crop_y +
                                                     target_height, crop_x:crop_x + target_width]
 
+            # Step 4: Overlay resized video in center (letterbox effect)
             center_y = (target_height - resized_height) // 2
             blurred_background[center_y:center_y +
                                resized_height, :] = resized_image
@@ -139,16 +211,23 @@ def create_vertical_video(tracks, scores, pyframes_path, pyavi_path, audio_path,
             vout.write(blurred_background)
 
         elif mode == "crop":
+            # CROP MODE: Active speaker detected
+            # Strategy: Crop 1080px width centered on speaker's face
+
+            # Step 1: Scale video height to 1920px
             scale = target_height / img.shape[0]
             resized_image = cv2.resize(
                 img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
             frame_width = resized_image.shape[1]
 
+            # Step 2: Find horizontal crop position centered on speaker
             center_x = int(
                 max_score_face["x"] * scale if max_score_face else frame_width // 2)
+            # Ensure crop stays within frame boundaries
             top_x = max(min(center_x - target_width // 2,
                         frame_width - target_width), 0)
 
+            # Step 3: Crop 1080px width from scaled video
             image_cropped = resized_image[0:target_height,
                                           top_x:top_x + target_width]
 
@@ -178,7 +257,25 @@ def is_hindi(text):
 #         return text  # Fallback to original text if translation fails
 
 def transliterate_hindi_to_english(text):
-    """Transliterate Hindi text from Devanagari to Roman (ITRANS) script."""
+    """
+    Transliterate Hindi text from Devanagari script to Roman (ITRANS) script.
+
+    This converts Hindi characters like "नमस्ते" to "namaste" for better subtitle
+    readability on platforms that may not render Devanagari properly.
+
+    Args:
+        text (str): Hindi text in Devanagari script
+
+    Returns:
+        str: Transliterated text in Roman script (ITRANS format),
+             or original text if transliteration fails
+
+    Example:
+        >>> transliterate_hindi_to_english("नमस्ते")
+        'namaste'
+        >>> transliterate_hindi_to_english("क्या")
+        'kyA'
+    """
     try:
         return transliterate(text, DEVANAGARI, ITRANS)
     except Exception as e:
@@ -187,6 +284,57 @@ def transliterate_hindi_to_english(text):
 
 
 def create_subtitles_with_ffmpeg(transcript_segments: list, clip_start: float, clip_end: float, clip_video_path: str, output_path: str, max_words: int = 5):
+    """
+    Generate karaoke-style subtitles with word-by-word highlighting and burn into video.
+
+    Creates ASS (Advanced SubStation Alpha) format subtitles with:
+    - Word grouping (5 words per line for readability)
+    - Karaoke effect: each word highlights yellow as it's spoken
+    - Professional styling: Anton font, white text, shadow & outline
+    - Bottom-center positioning
+
+    Algorithm:
+        1. Filter transcript segments within clip time range
+        2. Group words into sentences (max_words per sentence)
+        3. Calculate karaoke timing (\k tags) for each word
+        4. Generate ASS subtitle file with styling
+        5. Burn subtitles into video using ffmpeg
+
+    Args:
+        transcript_segments (list): Word-level transcript with start/end timestamps
+            Format: [{"word": "hello", "start": 1.5, "end": 1.8}, ...]
+        clip_start (float): Clip start time in seconds (relative to original video)
+        clip_end (float): Clip end time in seconds
+        clip_video_path (str): Path to input video (without subtitles)
+        output_path (str): Path to save video with burned-in subtitles
+        max_words (int, optional): Words per subtitle line. Default: 5
+
+    Returns:
+        None: Saves subtitled video to output_path
+
+    Technical Details:
+        - Format: ASS (Advanced SubStation Alpha)
+        - Resolution: 1080x1920 (PlayResX/Y)
+        - Font: Anton, 140pt
+        - Colors (BGR format):
+            - Primary: &HFFFFFF& (white)
+            - Highlight: &H00FFFF& (yellow)
+            - Shadow: &H000000& (black, 128 alpha)
+        - Karaoke timing: \k<centiseconds> tags (e.g., \k50 = 0.5 seconds)
+        - Alignment: 2 (bottom center)
+        - Margins: 50px all sides
+        - Encoding: H.264, CRF 23, fast preset
+
+    Example:
+        >>> segments = [
+        ...     {"word": "Hello", "start": 1.0, "end": 1.5},
+        ...     {"word": "world", "start": 1.6, "end": 2.0}
+        ... ]
+        >>> create_subtitles_with_ffmpeg(
+        ...     segments, 0.0, 5.0, "input.mp4", "output.mp4", max_words=5
+        ... )
+        # Creates video with karaoke subtitles
+    """
     temp_dir = os.path.dirname(output_path)
     subtitle_path = os.path.join(temp_dir, "temp_subtitles.ass")
 
@@ -304,6 +452,66 @@ def create_subtitles_with_ffmpeg(transcript_segments: list, clip_start: float, c
 
 
 def process_clip(base_dir: str, original_video_path: str, s3_key: str, start_time: float, end_time: float, clip_index: int, transcript_segments: list):
+    """
+    Process a single clip from start to finish: extract, detect speaker, format, subtitle, upload.
+
+    This is the main orchestration function that coordinates all clip processing steps:
+    1. Extract video segment based on timestamps
+    2. Extract audio track
+    3. Run LR-ASD active speaker detection
+    4. Create vertical video with smart cropping
+    5. Generate and burn karaoke subtitles
+    6. Upload final clip to S3
+
+    Args:
+        base_dir (str): Working directory for temporary files
+        original_video_path (str): Path to source video file
+        s3_key (str): S3 key of original video (used to construct output key)
+        start_time (float): Clip start timestamp in seconds
+        end_time (float): Clip end timestamp in seconds
+        clip_index (int): Clip number (0, 1, 2, ...) for naming
+        transcript_segments (list): Word-level transcript data for subtitles
+            Format: [{"word": "hello", "start": 1.5, "end": 1.8}, ...]
+
+    Returns:
+        None: Uploads processed clip to S3
+
+    Directory Structure Created:
+        base_dir/
+        ├── clip_N/
+        │   ├── clip_N_segment.mp4       # Extracted segment
+        │   ├── pywork/                  # LR-ASD working directory
+        │   │   ├── tracks.pckl          # Face tracking data
+        │   │   └── scores.pckl          # Speaking scores
+        │   ├── pyframes/                # Extracted frames with bounding boxes
+        │   │   └── *.jpg
+        │   └── pyavi/                   # Output directory
+        │       ├── audio.wav            # Extracted audio
+        │       ├── video_out_vertical.mp4   # Vertical video without subtitles
+        │       └── video_with_subtitles.mp4 # Final output
+
+    Processing Steps:
+        1. Extract segment: ffmpeg cuts video from start_time to end_time
+        2. Extract audio: PCM 16-bit, 16kHz mono for LR-ASD
+        3. Run Columbia_test.py (LR-ASD inference) from /LR-ASD directory
+        4. Load tracks.pckl and scores.pckl pickle files
+        5. Create vertical video with active speaker tracking
+        6. Generate ASS subtitles with karaoke timing
+        7. Burn subtitles into video
+        8. Upload to S3: {original_s3_dir}/clip_N.mp4
+
+    Example:
+        >>> process_clip(
+        ...     base_dir="/tmp/run123",
+        ...     original_video_path="/tmp/run123/input.mp4",
+        ...     s3_key="user456/upload789/video.mp4",
+        ...     start_time=125.0,
+        ...     end_time=180.0,
+        ...     clip_index=0,
+        ...     transcript_segments=[...]
+        ... )
+        # Uploads to S3: user456/upload789/clip_0.mp4
+    """
     clip_name = f"clip_{clip_index}"
     s3_key_dir = os.path.dirname(s3_key)
     output_s3_key = f"{s3_key_dir}/{clip_name}.mp4"
@@ -395,6 +603,42 @@ class Clipzz:
         print("Created gemini client...")
 
     def transcribe_video(self, base_dir: str, video_path: str) -> str:
+        """
+        Transcribe video audio to text with word-level timestamps using WhisperX.
+
+        Pipeline:
+            1. Extract audio from video (16kHz, mono, PCM)
+            2. Load audio with whisperx
+            3. Transcribe with WhisperX large-v2 model (auto language detection)
+            4. Align words with timestamps using language-specific alignment model
+            5. For Hindi: transliterate Devanagari → Roman script
+            6. Handle missing timestamps with interpolation
+
+        Args:
+            base_dir (str): Working directory to save audio file
+            video_path (str): Path to input video file
+
+        Returns:
+            str: JSON string containing word-level transcript segments
+                Format: '[{"word": "hello", "start": 1.5, "end": 1.8}, ...]'
+
+        Language Support:
+            - Auto-detects language (80+ languages supported)
+            - English and Hindi have been tested
+            - Hindi words are transliterated to Roman script (ITRANS)
+
+        Timestamp Interpolation:
+            - If a word is missing start/end timestamps:
+              * Use previous word's end time as start
+              * Estimate 0.6s duration for end time
+              * Ensure end > start (minimum 0.1s duration)
+
+        Example:
+            >>> transcript = clipzz.transcribe_video("/tmp/run", "/tmp/video.mp4")
+            >>> segments = json.loads(transcript)
+            >>> print(segments[0])
+            {'word': 'Hello', 'start': 0.5, 'end': 0.9}
+        """
         audio_path = base_dir / "audio.wav"
         extract_cmd = f"ffmpeg -i {video_path} -vn -acodec pcm_s16le -ar 16000 -ac 1 {audio_path}"
         subprocess.run(extract_cmd, shell=True, check=True, capture_output=True)
@@ -475,6 +719,36 @@ class Clipzz:
         return json.dumps(segments, indent=2, ensure_ascii=False)
     
     def identify_moments(self, transcript: dict):
+        """
+        Use Google Gemini 2.5 Pro to identify engaging Q&A moments in transcript.
+
+        Analyzes the full transcript to find clips that:
+        - Are 30-60 seconds long (optimized for social media)
+        - Contain complete questions and answers
+        - Don't overlap with each other
+        - Exclude greetings, farewells, and non-content moments
+
+        Args:
+            transcript (dict): Word-level transcript segments
+                Format: [{"word": "hello", "start": 1.5, "end": 1.8}, ...]
+
+        Returns:
+            str: Gemini response text containing JSON array of clip boundaries
+                Format: '[{"start": 125.0, "end": 178.0}, ...]'
+                May include markdown code fences (```json...```) which are stripped later
+
+        Prompt Strategy:
+            - Focus on Q&A format conversations
+            - Prefer longer clips (40-60s) over shorter ones
+            - Align clip boundaries with sentence boundaries
+            - Use only exact timestamps from input (no modification)
+            - Return empty list [] if no valid clips found
+
+        Example:
+            >>> moments = clipzz.identify_moments(transcript_segments)
+            >>> print(moments)
+            '[{"start": 125.0, "end": 178.0}, {"start": 200.0, "end": 255.0}]'
+        """
         print("inside identify moments func")
         response = self.gemini_model.generate_content("""
     This is a podcast video transcript consisting of word, along with each words's start and end time. I am looking to create clips between a minimum of 30 and maximum of 60 seconds long. The clip should never exceed 60 seconds.

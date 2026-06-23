@@ -1,8 +1,8 @@
-# <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f310/512.gif" width="32"> API Documentation
+# <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e1/512.gif" width="32"> API Documentation
 
 Complete API reference for Clipzz backend endpoints and frontend server actions.
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4d1/512.gif" width="24"> Table of Contents
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4cb/512.gif" width="24"> Table of Contents
 
 - [Backend API (Modal)](#backend-api-modal)
 - [Frontend Server Actions](#frontend-server-actions)
@@ -12,7 +12,7 @@ Complete API reference for Clipzz backend endpoints and frontend server actions.
 
 ---
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2699/512.gif" width="24"> Backend API (Modal)
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.gif" width="24"> Backend API (Modal)
 
 ### Base URL
 ```
@@ -436,7 +436,7 @@ razorpay.open();
 
 ---
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b3/512.gif" width="24"> Webhook Endpoints
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f514/512.gif" width="24"> Webhook Endpoints
 
 ### POST /api/webhooks/stripe
 
@@ -539,7 +539,7 @@ X-Razorpay-Signature: signature_here
 
 ---
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/26a0/512.gif" width="24"> Error Handling
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f6a8/512.gif" width="24"> Error Handling
 
 ### Common Error Responses
 
@@ -614,7 +614,7 @@ X-Razorpay-Signature: signature_here
 
 ---
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f6ab/512.gif" width="24"> Rate Limits
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/23f1/512.gif" width="24"> Rate Limits
 
 ### Current Limits (Inngest)
 

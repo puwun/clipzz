@@ -14,30 +14,30 @@
 
 Clipzz automatically converts your long-form podcast videos into engaging short-form vertical clips optimized for TikTok, Instagram Reels, and YouTube Shorts. Using cutting-edge AI for speaker detection, transcription, and moment identification, Clipzz makes content creation effortless.
 
-## ✨ Features
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif" width="24"> Features
 
-### 🤖 AI-Powered Processing
+### <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.gif" width="20"> AI-Powered Processing
 
 - **Automatic Transcription** — WhisperX with multi-language support (English, Hindi)
 - **Smart Moment Detection** — Google Gemini 2.5 Pro identifies engaging Q&A segments
 - **Active Speaker Detection** — LR-ASD model tracks and focuses on speaking persons
 - **Intelligent Cropping** — Dynamic camera framing that follows the active speaker
 
-### 🎬 Video Processing
+### <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3ac/512.gif" width="20"> Video Processing
 
 - **Vertical Format** — Converts horizontal videos to 1080×1920 (perfect for social media)
 - **Animated Subtitles** — Karaoke-style word-by-word highlighting
 - **Smart Background** — Blurred letterboxing when no speaker detected
 - **High Quality** — GPU-accelerated processing with FFmpeg
 
-### 💳 Business Features
+### <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3af/512.gif" width="20"> Business Features
 
 - **Credit-Based System** — Pay only for what you process
 - **Multiple Payment Options** — Stripe (global) and Razorpay (India)
 - **User Dashboard** — Track processing status and manage clips
 - **Secure Storage** — AWS S3 with presigned URLs
 
-## 💻 Tech Stack
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4bb/512.gif" width="24"> Tech Stack
 
 ### Frontend
 - **Framework:** Next.js 16 (App Router) + React 19 + TypeScript
@@ -58,7 +58,7 @@ Clipzz automatically converts your long-form podcast videos into engaging short-
 - **Video Processing:** PyTorch, OpenCV, FFmpeg
 - **Languages:** Python 3.12
 
-## 🚀 Quick Start
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif" width="24"> Quick Start
 
 ### Prerequisites
 
@@ -121,13 +121,13 @@ npm run inngest-dev
 
 Visit [http://localhost:3000](http://localhost:3000) to see the app.
 
-## 📖 Documentation
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4da/512.gif" width="24"> Documentation
 
 - **[Architecture](docs/ARCHITECTURE.md)** — System design and data flow
 - **[API Documentation](docs/API.md)** — API endpoints and server actions
 - **[Backend README](backend/README.md)** — Backend processing pipeline
 
-## 💡 How It Works
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4a1/512.gif" width="24"> How It Works
 
 1. **Upload** — User uploads podcast video through dashboard
 2. **Transcribe** — WhisperX transcribes audio with word-level timestamps
@@ -141,7 +141,7 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 6. **Store** — Upload clips to S3
 7. **Deliver** — User downloads clips from dashboard
 
-## 💰 Pricing
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f911/512.gif" width="24"> Pricing
 
 | Pack | Credits | Price (USD) | Price (INR) |
 |------|---------|-------------|-------------|
@@ -153,7 +153,7 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 - New users get **10 free credits**
 - Credits never expire
 
-## 🗂️ Project Structure
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e6/512.gif" width="24"> Project Structure
 
 ```
 clipzz/
@@ -175,7 +175,7 @@ clipzz/
 └── README.md
 ```
 
-## 🙏 Acknowledgments
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" width="24"> Acknowledgments
 
 - [WhisperX](https://github.com/m-bain/whisperX) — Speech recognition
 - [LR-ASD](https://github.com/Junhua-Liao/Light-ASD) — Active speaker detection

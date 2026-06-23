@@ -1,8 +1,8 @@
-# <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f9ea/512.gif" width="32"> Clipzz Backend - Video Processing Pipeline
+# <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2699/512.gif" width="32"> Clipzz Backend - Video Processing Pipeline
 
 Python-based video processing backend running on Modal serverless GPU infrastructure.
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e6/512.gif" width="24"> Overview
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f440/512.gif" width="24"> Overview
 
 The backend is responsible for the entire video processing pipeline:
 1. Video transcription with WhisperX
@@ -69,7 +69,7 @@ git submodule update --init --recursive
 cp .env.example .env
 ```
 
-2. Configure environment variables (see [CONFIGURATION.md](../CONFIGURATION.md))
+2. Configure environment variables (see `.env.example`)
 
 3. Create Modal secrets:
 ```bash
@@ -106,7 +106,7 @@ Copy the production endpoint URL to your frontend's `.env`:
 PROCESS_VIDEO_ENDPOINT="https://your-app--clipzz-video-processor-process-video.modal.run"
 ```
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3d7/512.gif" width="24"> Architecture
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e9/512.gif" width="24"> Architecture
 
 ### Modal App Structure
 
@@ -308,7 +308,7 @@ Numbers are centiseconds (50 = 0.5 seconds).
 
 **Burn-In:** Uses ffmpeg subtitles filter (hardware-accelerated if available)
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f527/512.gif" width="24"> API Reference
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.gif" width="24"> API Reference
 
 ### POST /process_video
 
@@ -348,7 +348,7 @@ Authorization: Bearer your-auth-token
 - `401 Unauthorized`: Invalid or missing auth token
 - `500 Internal Server Error`: Processing failed
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4c1/512.gif" width="24"> File Structure
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e6/512.gif" width="24"> File Structure
 
 ```
 backend/
@@ -398,7 +398,7 @@ backend/
 
 ### Environment Variables
 
-See [CONFIGURATION.md](../CONFIGURATION.md) for detailed setup.
+See `.env.example` for detailed setup.
 
 **Required:**
 - `AWS_ACCESS_KEY_ID` - S3 access key
@@ -466,7 +466,7 @@ Adjust resources in `main.py`:
 git submodule update --init --recursive
 ```
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.gif" width="24"> Performance
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3af/512.gif" width="24"> Performance
 
 ### Processing Times (Approximate)
 
@@ -498,7 +498,7 @@ L40S GPU @ $2.50/hour:
 - **Temporary Files:** Cleaned up after processing
 - **No Data Retention:** Videos not stored on Modal infrastructure
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4dd/512.gif" width="24"> Development
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4a1/512.gif" width="24"> Development
 
 ### Local Testing
 
@@ -535,7 +535,7 @@ modal serve main.py
 modal deploy main.py
 ```
 
-## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif" width="24"> Future Improvements
+## <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f52e/512.gif" width="24"> Future Improvements
 
 - [ ] Support more video formats (AVI, MOV, MKV)
 - [ ] Add configurable subtitle styles
@@ -549,6 +549,5 @@ modal deploy main.py
 ---
 
 For more information:
-- [Architecture Overview](../ARCHITECTURE.md)
-- [Configuration Guide](../CONFIGURATION.md)
-- [API Documentation](../API.md)
+- [Architecture Overview](../docs/ARCHITECTURE.md)
+- [API Documentation](../docs/API.md)

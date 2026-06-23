@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+
+# Environment files (contain secrets!)
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts
+*.tsbuildinfo
+next-env.d.ts
+
+# Video / audio files (large)
+*.mp4
+*.wav
+*.mp3
+
+# Logs
+*.log
+npm-debug.log*
+
+# Misc
+.vercel
